@@ -55,6 +55,12 @@ class Site:
       self.observation_tasks = []
 
   async def run(self) -> None:
+      try:
+          await self.poll_schedule()
+      except asyncio.CancelledError:
+          await self.api_client.aclose()
+
+  async def poll_schedule(self) -> None:
       while True:
           log.info("checking for new schedule")
 
