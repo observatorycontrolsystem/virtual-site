@@ -10,7 +10,12 @@ log = logging.getLogger(__name__)
 
 
 @click.command()
-@click.option("--name", help="name of this site (e.g. 'ogg')", required=True)
+@click.option(
+    "--name",
+    help="name of this site (e.g. 'ogg')",
+    required=True,
+    default="ogg"
+)
 @click.option(
     "--api-url",
     help="OCS Portal API root URL (e.g. 'http://localhost:8000/api/'",
