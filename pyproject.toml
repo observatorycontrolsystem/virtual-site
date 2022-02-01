@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "virtual-site"
+version = "0.1.0"
+description = "Virtual OCS Site"
+authors = ["Jashandeep Sohi <jsohi.lco.global>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+click = "^8.0.3"
+httpx = "^0.21.3"
+arrow = "^1.2.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+virtual-site = "virtual_site:cli"
