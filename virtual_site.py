@@ -84,11 +84,13 @@ class Site:
   async def sync_schedule(self) -> None:
       log.info("synchronizing schedule")
 
+      now = arrow.utcnow()
       schedule = (await self.api_client.get(
           f"/schedule/",
           params={
               "site": self.name,
-              "start_after": arrow.utcnow().isoformat(),
+              "start_after": now.isoformat(),
+              "start_before": now.shift(days=7).isoformat(),
               "state": "PENDING",
           }
       )).json()
