@@ -7,7 +7,7 @@ on:
       - mvp # TODO: remove after testing
     # Publish semver tags as releases.
     tags:
-      - 'v*.*.*'
+      - '*.*.*'
   pull_request:
     branches:
       - main
