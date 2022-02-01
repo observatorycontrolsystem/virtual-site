@@ -29,9 +29,16 @@ log = logging.getLogger(__name__)
     default="info",
 )
 def cli(name, api_url, api_token, log_level):
+    """
+    A virtual controller that fufills observation requests for a site.
+    """
+    # Just setting up logging.
     logging.basicConfig(level=log_level.upper())
 
     s = Site(name, api_url, api_token)
+
+    # We're using asyncio just to make concurrent programming a bit
+    # more legible. You can ignore the async/await syntax for the most part.
     asyncio.run(s.run())
 
 
@@ -39,15 +46,18 @@ class Site:
 
   name: str
 
-  api_client: httpx.AsyncClient
-
+  # Arrow is just like a datetime object but w/ full ISO 8601
   last_sync_time: arrow.Arrow
 
   observation_tasks: list["ObservationTask"]
 
+  api_client: httpx.AsyncClient
+
 
   def __init__(self, name: str, api_url: str, api_token: str):
       self.name = name
+
+      # setup a HTTP client we'll use to talk with API
       self.api_client = httpx.AsyncClient(
           base_url=api_url,
           headers={
@@ -56,16 +66,30 @@ class Site:
           follow_redirects=True
       )
 
+      # this datetime is used to keep track of when to poll for a new schedule
+      # set to "0" (epoch start) initially to always sync the schedule on
+      # start-up
       self.last_sync_time = arrow.get(0)
+
+      # a list of running or scheduled observation tasks
       self.observation_tasks = []
 
   async def run(self) -> None:
+      """
+      Run site tasks.
+      """
       try:
+          # we start polling the schedule in a coroutine
           await self.poll_schedule()
-      except asyncio.CancelledError:
+      except asyncio.CancelledError: # raised on CTRL-C
+          # gracefully shut down the HTTP client
           await self.api_client.aclose()
 
   async def poll_schedule(self) -> None:
+      """
+      Poll the schedule every 5 seconds and schedule observations locally
+      whenver a new schedule is detected.
+      """
       while True:
           log.info("checking for new schedule")
 
@@ -82,6 +106,10 @@ class Site:
           await asyncio.sleep(5)
 
   async def sync_schedule(self) -> None:
+      """
+      Retrive the schedule from the API and create a ObservationTask for each
+      observation.
+      """
       log.info("synchronizing schedule")
 
       now = arrow.utcnow()
@@ -99,7 +127,6 @@ class Site:
       for ot in self.observation_tasks:
           ot.cancel()
 
-      # schedule the new ones
       log.info("scheduling new tasks")
       observation_tasks = []
 
@@ -113,6 +140,12 @@ class Site:
 
 
 class ObservationTask:
+    """
+    A ObservationTask carrys out the observation on the telescope/instruments
+    (although in this case we just sleep).
+
+    On instantiation, it creates a asyncio.Task to run in the background.
+    """
 
     def __init__(self, spec: dict, api_client: httpx.AsyncClient):
         self.spec = spec
@@ -123,8 +156,13 @@ class ObservationTask:
         self.task = asyncio.create_task(self.run())
 
     async def run(self):
+        """
+        Perform an "observation".
+
+        This task sits idle until the observation start time and then mocks
+        the observation.
+        """
         start_time = arrow.get(self.spec["start"])
-        end_time = arrow.get(self.spec["end"])
 
         self.log.info(
             f"waiting until observation start time: "
