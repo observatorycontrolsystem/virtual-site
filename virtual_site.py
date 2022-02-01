@@ -182,11 +182,6 @@ class ObservationTask:
             if not r.is_success:
                 return
 
-        self.log.info(
-            f"waiting until observation end time: "
-            f"{end_time} ({end_time.humanize()})"
-        )
-        await asyncio.sleep((end_time - arrow.utcnow()).total_seconds())
         self.log.info("observation finished")
 
     def cancel(self) -> None:
