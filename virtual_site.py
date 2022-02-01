@@ -115,7 +115,7 @@ class ObservationTask:
     def __init__(self, spec: dict, api_client: httpx.AsyncClient):
         self.spec = spec
         self.api_client = api_client
-        self.waiting = True
+        self.started = False
 
         self.log = logging.getLogger(repr(self))
         self.task = asyncio.create_task(self.run())
@@ -129,7 +129,7 @@ class ObservationTask:
             f"{start_time} ({start_time.humanize()})"
         )
         await asyncio.sleep((start_time - arrow.utcnow()).total_seconds())
-        self.waiting = False
+        self.started = True
         self.log.info("observation started")
 
         for config in self.spec["request"]["configurations"]:
@@ -185,7 +185,13 @@ class ObservationTask:
         self.log.info("observation finished")
 
     def cancel(self) -> None:
-        if not self.waiting:
+        """
+        Cancel this observation if it hasn't started yet.
+        """
+        if not self.started:
+            self.log.info(
+                "skip cancelling because observation has already started"
+            )
             return
 
         self.log.info("cancelling")
