@@ -2,7 +2,7 @@ virtual-site
 ####
 
 Example application showcasing OCS API interactions needed to fulfill
-observation requests at a telscope site.
+observation requests at a telescope site.
 
 You might find this helpful if you're looking to integrate your telescope's
 control system with the Observatory Control System. Also, see

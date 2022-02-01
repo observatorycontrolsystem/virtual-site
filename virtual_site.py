@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 )
 def cli(name, api_url, api_token, log_level):
     """
-    A virtual controller that fufills observation requests for a site.
+    A virtual controller that fulfills observation requests for a site.
     """
     # Just setting up logging.
     logging.basicConfig(level=log_level.upper())
@@ -88,7 +88,7 @@ class Site:
   async def poll_schedule(self) -> None:
       """
       Poll the schedule every 5 seconds and schedule observations locally
-      whenver a new schedule is detected.
+      whenever a new schedule is detected.
       """
       while True:
           log.info("checking for new schedule")
@@ -107,7 +107,7 @@ class Site:
 
   async def sync_schedule(self) -> None:
       """
-      Retrive the schedule from the API and create a ObservationTask for each
+      Retrieve the schedule from the API and create a ObservationTask for each
       observation.
       """
       log.info("synchronizing schedule")
@@ -141,7 +141,7 @@ class Site:
 
 class ObservationTask:
     """
-    A ObservationTask carrys out the observation on the telescope/instruments
+    A ObservationTask carries out the observation on the telescope/instruments
     (although in this case we just sleep).
 
     On instantiation, it creates a asyncio.Task to run in the background.
