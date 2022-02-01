@@ -77,6 +77,8 @@ class Site:
 
               await self.sync_schedule()
 
+              self.last_sync_time = last_scheduled_time
+
           await asyncio.sleep(5)
 
   async def sync_schedule(self) -> None:
@@ -90,8 +92,6 @@ class Site:
               "state": "PENDING",
           }
       )).json()
-
-      self.last_sync_time = arrow.utcnow()
 
       log.info("cancelling previously scheduled tasks")
       for ot in self.observation_tasks:
